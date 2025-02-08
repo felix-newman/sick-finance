@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from restack_ai.workflow import workflow, import_functions, log
 from datetime import timedelta
-
+import json
 with import_functions():
     from src.functions.llm import llm, FunctionInputParams
     from src.functions.generate_image import generate_image, GenerateImageInputParams
@@ -31,7 +31,7 @@ class MultistepWorkflow:
             llm,
             FunctionInputParams(
                 system_content="""You are a financial news reporter. You are given a summary of financial information. 
-                Generate a click bait title and a short news article from this information. The output format should be:
+                Generate a click bait title and a short news article from this information. The output must be a JSON object with the following fields:
                 {
                     "title": "<title>",
                     "lead": "<lead>",
@@ -58,9 +58,6 @@ class MultistepWorkflow:
         log.info("MultistepWorkflow completed")
         return {
             "original_summary": llm_summary,
-            "title": llm_article["title"],
-            "lead": llm_article["lead"],
-            "content": llm_article["content"],
-            "mentioned_stocks": llm_article["mentioned_stocks"],
-            "image_url": llm_image_url
+            "image_url": llm_image_url,
+            **json.loads(llm_article),
         }
