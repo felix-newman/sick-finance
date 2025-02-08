@@ -10,7 +10,7 @@ class RestackTaskBase(SQLModel):
     status: str = Field(nullable=False)
 
     run_id: UUID = Field(nullable=False)
-    workflow_id: UUID = Field(nullable=False)
+    workflow_id: str = Field(nullable=False)
 
     article_id: UUID = Field(nullable=False, foreign_key="source_article.id")
 

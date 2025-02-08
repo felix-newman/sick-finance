@@ -4,6 +4,11 @@ from uuid import UUID
 from sqlmodel import Session, select
 from src.models.articles import GeneratedArticleBase
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class RestackController:
     def __init__(self, endpoint: str, session: Session):
@@ -13,13 +18,14 @@ class RestackController:
     def create_task(self, content: str, article_id: UUID) -> RestackTask:
         response = requests.post(
             f"{self.endpoint}/api/workflows/MultistepWorkflow",
-            json={"news_article": content},
+            json={"input": {"news_article": content}},
         )
         data = response.json()
+        logger.info(f"Created task with data: {data}")
 
         task = RestackTask(
             run_id=UUID(data["runId"]),
-            workflow_id=UUID(data["workflowId"]),
+            workflow_id=data["workflowId"],
             article_id=article_id,
             status="running",
         )
@@ -36,13 +42,17 @@ class RestackController:
         ).all()
 
     def poll_task_finished(self, task: RestackTask) -> GeneratedArticleBase:
-        response = requests.get(
-            f"{self.endpoint}/api/workflows/MultistepWorkflow/",
-            data={"run_id": task.run_id, "workflow_id": task.workflow_id},
-            timeout=2,
-        )
 
+        response = requests.get(
+            f"{self.endpoint}/api/workflows/MultistepWorkflow/{task.workflow_id}/{task.run_id}",
+            timeout=1000,
+        )
+        if response.status_code != 200:
+            raise TimeoutError(f"Task {task.id} timed out")
+
+        logger.info(f"Polled task with response: {response.text}")
         data = response.json()
+        logger.info(f"Polled task with data: {data}")
         generated_article = GeneratedArticleBase(
             source_id=task.article_id,
             title=data["title"],
