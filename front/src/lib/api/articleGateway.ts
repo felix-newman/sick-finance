@@ -8,6 +8,7 @@ export interface Article {
     imgUrl?: string;
     stocks: string[];
     sourceUrl?: string;
+    text?: string;
   }
 
 export async function getStatus(): Promise<any> {
