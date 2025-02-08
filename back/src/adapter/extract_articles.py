@@ -30,7 +30,7 @@ app = FirecrawlApp(api_key=os.environ.get("FIRECRAWL_API_KEY"))
 
 def extract_source_articles(url: str) -> List[SourceArticleBase]:
     try:
-        logger.info("Extracting articles from the first page of the newsroom.")
+        logger.info(f"Extracting articles from the first page of the {url}.")
         page_response = app.extract(
             [url],
             {
