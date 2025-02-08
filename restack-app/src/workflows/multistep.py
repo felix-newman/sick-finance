@@ -4,6 +4,7 @@ from datetime import timedelta
 
 with import_functions():
     from src.functions.llm import llm, FunctionInputParams
+    from src.functions.generate_image import generate_image, GenerateImageInputParams
 
 class WorkflowInputParams ( BaseModel):
     news_article: str = Field(default="Test Article, Test Company, Test Price, Test Change")
@@ -41,8 +42,20 @@ class MultistepWorkflow:
             ),
             start_to_close_timeout=timedelta(seconds=120)
         )
+
+        llm_image_url = await workflow.step(
+            generate_image,
+            GenerateImageInputParams(
+                prompt=f"Generate a image for the follwoing news article: {llm_article}",
+                model="dall-e-3",
+                n=1,
+                size="1024x1024"
+            ),
+            start_to_close_timeout=timedelta(seconds=120)
+        )
         log.info("MultistepWorkflow completed")
         return {
             "article_summary": llm_summary,
-            "article": llm_article
+            "article": llm_article,
+            "image_url": llm_image_url
         }

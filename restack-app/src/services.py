@@ -1,6 +1,7 @@
 import asyncio
 import os
 from src.functions.llm import llm
+from src.functions.generate_image import generate_image
 from src.client import client
 from src.workflows.multistep import MultistepWorkflow
 from watchfiles import run_process
@@ -10,7 +11,7 @@ async def main():
 
     await client.start_service(
         workflows= [MultistepWorkflow],
-        functions= [llm],
+        functions= [llm, generate_image],
     )
 
 def run_services():
