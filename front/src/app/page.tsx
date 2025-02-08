@@ -7,6 +7,7 @@ import { listArticles, Article, createDummy, deleteDummy } from "@/lib/api/artic
 import { on } from "events";
 import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
+import { Input } from "@/components/ui/input";
 
 export default function DemoPage() {
   const [data, setData] = useState<Article[]>([]);
@@ -36,8 +37,8 @@ export default function DemoPage() {
   }
   const onClick = (data: Article) => {
     window.location.href = `/${data.title}`;
-  } 
-  
+  }
+
   const onDeleteClicked = async (data: Article) => {
     await deleteDummy(data.id as string)
     setData(await listArticles())
@@ -45,14 +46,25 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="container mx-auto my-10">
-
-      
+    <div className="container mx-auto my-10 max-w-3xl">
+      <div className="my-10">
+        <h1 className="text-4xl font-bold">Sick finance</h1>
+        <div className="grid grid-cols-2 gap-2 my-4">
+          <Input
+            placeholder="stock"
+            type="text"
+          />
+          <Input
+            placeholder="Source URL"
+            type="url"
+          />
+        </div>
+      </div>
 
       <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">
         {data.map((d) => (
           <ArticleCard key={d.id} request={d} onClick={onClick} />
-        ))}        
+        ))}
       </div>
     </div>
 

@@ -6,6 +6,7 @@ export interface Article {
     title: string;
     lead: string;
     imgUrl?: string;
+    stocks: string[];
   }
 
 export async function getStatus(): Promise<any> {
@@ -22,12 +23,14 @@ export async function listArticles(): Promise<Article[]> {
       title: "Hello World",
       lead: "This is a dummy article",
       imgUrl: "/exmaple.png",
+      stocks: ["AAPL", "GOOGL", "AMZN"]
     },
     {
       id: "2",
       title: "Hello World 2",
       lead: "This is a dummy article",
       imgUrl: "/exmaple.png",
+      stocks: ["TSLA", "AMZN"]
     }
   ]
 }

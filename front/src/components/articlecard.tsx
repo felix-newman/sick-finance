@@ -4,6 +4,7 @@ import { JSX } from "react";
 import { Button } from "./ui/button";
 import { Article } from "@/lib/api/articleGateway";
 import Image from 'next/image'
+import { Badge } from "./ui/badge";
 
 interface ArticleCardProps {
     request: Article;
@@ -12,7 +13,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
-    const { id, title, lead, imgUrl } = request;
+    const { id, title, lead, imgUrl, stocks } = request;
 
     return (
         <figure onClick={() => onClick(request)}
@@ -30,12 +31,12 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
             <div className="cursor-pointer flex flex-row items-center gap-3">
                 <div className="flex size-20 items-center justify-center rounded-2xl">
                     <Image
-                        alt="Article" 
+                        alt="Article"
                         width={200}
                         height={200}
                         src={imgUrl!}
                     />
-                    
+
                 </div>
                 <div className="flex flex-col overflow-hidden">
                     <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
