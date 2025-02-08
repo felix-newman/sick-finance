@@ -10,6 +10,7 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class NestedModel1(BaseModel):
     title: str
     date_published: str
@@ -25,8 +26,10 @@ class ExtractSchema(BaseModel):
 class ArticleContent(BaseModel):
     article_content: str
 
+
 load_dotenv()
 app = FirecrawlApp(api_key=os.environ.get("FIRECRAWL_API_KEY"))
+
 
 def extract_source_articles(url: str) -> List[SourceArticleBase]:
     try:
@@ -38,15 +41,19 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                 "schema": ExtractSchema.model_json_schema(),
             },
         )
-        
+
         article_response: ExtractSchema = ExtractSchema(**page_response["data"])
         logger.info(f"scraped {len(article_response.articles)}")
-        
+
         res = []
         for i, article in enumerate(article_response.articles):
             if i == 1:
                 break
-            logger.info("Extracting the full content of the article. %s in %s", i, len(article_response.articles))
+            logger.info(
+                "Extracting the full content of the article. %s in %s",
+                i,
+                len(article_response.articles),
+            )
             article_result = app.extract(
                 [article.url],
                 {
@@ -54,9 +61,9 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                     "schema": ArticleContent.model_json_schema(),
                 },
             )
-            
+
             content = ArticleContent(**article_result["data"])
-        
+
             logger.info("data scraped content len %s", len(content.article_content))
             res.append(
                 SourceArticleBase(
@@ -66,7 +73,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                     content=content.article_content,
                 )
             )
-        
+
         logger.info(f"Firecrawl ended returning response with {len(res)} results")
         return res
     except Exception as e:

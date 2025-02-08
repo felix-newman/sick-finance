@@ -6,21 +6,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 @dataclass
 class FunctionInputParams:
     user_content: str
     system_content: str | None = None
     model: str | None = None
 
+
 @function.defn()
 async def llm(input: FunctionInputParams) -> str:
     try:
         log.info("llm function started", input=input)
 
-        if (os.environ.get("RESTACK_API_KEY") is None):
+        if os.environ.get("RESTACK_API_KEY") is None:
             raise FunctionFailure("RESTACK_API_KEY is not set", non_retryable=True)
-        
-        client = OpenAI(base_url="https://ai.restack.io", api_key=os.environ.get("RESTACK_API_KEY"))
+
+        client = OpenAI(
+            base_url="https://ai.restack.io", api_key=os.environ.get("RESTACK_API_KEY")
+        )
 
         messages = []
         if input.system_content:
@@ -28,8 +32,7 @@ async def llm(input: FunctionInputParams) -> str:
         messages.append({"role": "user", "content": input.user_content})
 
         response = client.chat.completions.create(
-            model=input.model or "gpt-4o-mini",
-            messages=messages
+            model=input.model or "gpt-4o-mini", messages=messages
         )
         log.info("llm function completed", response=response)
         return response.choices[0].message.content
