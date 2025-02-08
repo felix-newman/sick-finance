@@ -5,13 +5,16 @@ import os
 import uuid
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, Dict, List
-
+from uuid import UUID
 from fastapi import Depends, FastAPI, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
 
 from src.dummy_repository import DummyModel, DummyRepository
+from src.models.articles import GeneratedArticleBase, SourceArticle, SourceArticleBase, GeneratedArticle
+from src.adapter.source_article_repository import SourceArticleRepository
+from src.adapter.generated_article_repository import GeneratedArticleRepository
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,7 +37,20 @@ def get_session():
         yield session
 
 
+
+
 SessionDep = Annotated[Session, Depends(get_session)]
+
+def source_article_repository(session: SessionDep):
+    return SourceArticleRepository(session)
+
+def generated_article_repository(session: SessionDep):
+    return GeneratedArticleRepository(session)
+
+source_article_repository_dep = Annotated[SourceArticleRepository, Depends(source_article_repository)]
+generated_article_repository_dep = Annotated[GeneratedArticleRepository, Depends(generated_article_repository)]
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,6 +80,26 @@ class DummyModelRequest(BaseModel):
 async def list_dummies(session: SessionDep):
     repo = DummyRepository(session)
     return repo.get_all()
+
+@app.get("/generated_articles")
+async def list_generated_articles(generated_article_repository: generated_article_repository_dep):
+    return generated_article_repository.get_all()
+
+
+@app.post("/generated_articles")
+async def create_generated_article(
+    article: GeneratedArticleBase,
+    generated_article_repository: generated_article_repository_dep
+) -> GeneratedArticle:
+    return generated_article_repository.create(article)
+
+
+@app.post("/source_articles")
+async def create_source_article(
+    article: SourceArticleBase, 
+    source_article_repository: source_article_repository_dep
+    ):
+    return source_article_repository.create(article)
 
 @app.post("/dummies")
 async def create_dummy(data: DummyModelRequest, session: SessionDep):
