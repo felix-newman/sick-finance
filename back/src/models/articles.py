@@ -33,8 +33,11 @@ class GeneratedArticleBase(SQLModel):
     lead: str = Field(nullable=False)
 
     mentioned_stocks: list[str] = Field(sa_column=Column(JSON))
+    image_url: str = Field(nullable=True)
 
 class GeneratedArticle(GeneratedArticleBase, table=True):
     __tablename__ = "generated_article"
 
     source: SourceArticle = Relationship(back_populates="generated_articles")
+
+
