@@ -67,3 +67,12 @@ export async function deleteDummy(dummyId: string): Promise<void> {
   });
 }
 
+export async function extractArticles(url: string): Promise<Article[]> {
+  const res = await fetch(`${BASE_URL}/articles/`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  return res.json();
+}
+

@@ -3,7 +3,7 @@
 import { DataTable } from "@/components/datatable";
 import { ArticleCard } from "@/components/articlecard";
 import { DummyForm } from "@/components/dummyform";
-import { listArticles, Article, createDummy, deleteDummy } from "@/lib/api/articleGateway";
+import { listArticles, Article, createDummy, deleteDummy, extractArticles } from "@/lib/api/articleGateway"; // updated import
 import { on } from "events";
 import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
@@ -17,11 +17,14 @@ export default function DemoPage() {
   const [stockQuery, setStockQuery] = useState("");
   const [urlQuery, setUrlQuery] = useState("");
 
+  // new extractArticles form state
+  const [extractUrl, setExtractUrl] = useState("");
+
   function getColumnsFromData(data: Article[]): { header: string; accessorKey: string }[] {
     if (!data.length) return [];
     return Object.keys(data[0]).map((key) => ({
       header: key.charAt(0).toUpperCase() + key.slice(1),
-      accessorKey: key, // Use accessorKey here
+      accessorKey: key,
     }));
   }
   useEffect(() => {
@@ -32,7 +35,6 @@ export default function DemoPage() {
       setColumns(getColumnsFromData(dummyData));
     })();
   }, []);
-
 
   const onSubmit = async (values: any) => {
     await createDummy(values.name)
@@ -48,6 +50,14 @@ export default function DemoPage() {
     setData(await listArticles())
     console.log(data)
   }
+
+  // new handler for extracting articles
+  const onExtractSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const extractedArticles = await extractArticles(extractUrl);
+    console.log(extractedArticles);
+    setData(extractedArticles);
+  };
 
   // filter articles using fuzzy search on stocks and sourceUrl
   const filteredData = data.filter(d => {
@@ -75,6 +85,18 @@ export default function DemoPage() {
             onChange={(e) => setUrlQuery(e.target.value)}
           />
         </div>
+        {/* new form to trigger PUT request */}
+        <form onSubmit={onExtractSubmit} className="my-4">
+          <Input
+            placeholder="Enter URL to extract articles"
+            type="url"
+            value={extractUrl}
+            onChange={(e) => setExtractUrl(e.target.value)}
+          />
+          <button type="submit" className="px-2 py-1 ml-2 bg-blue-500 text-white rounded">
+            Extract Articles
+          </button>
+        </form>
       </div>
 
       <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">

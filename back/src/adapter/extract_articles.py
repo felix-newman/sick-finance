@@ -28,7 +28,7 @@ class ArticleContent(BaseModel):
 load_dotenv()
 app = FirecrawlApp(api_key=os.environ.get("FIRECRAWL_API_KEY"))
 
-def extract_source_articles(url: str="https://globenewswire.com/NewsRoom?page=1&pageSize=10") -> List[SourceArticleBase]:
+def extract_source_articles(url: str) -> List[SourceArticleBase]:
     try:
         logger.info("Extracting articles from the first page of the newsroom.")
         page_response = app.extract(
@@ -38,12 +38,14 @@ def extract_source_articles(url: str="https://globenewswire.com/NewsRoom?page=1&
                 "schema": ExtractSchema.model_json_schema(),
             },
         )
-        logger.info("scraped %s", page_response)
         
         article_response: ExtractSchema = ExtractSchema(**page_response["data"])
+        logger.info(f"scraped {len(article_response.articles)}")
         
         res = []
         for i, article in enumerate(article_response.articles):
+            if i == 2:
+                break
             logger.info("Extracting the full content of the article. %s in %s", i, len(article_response.articles))
             article_result = app.extract(
                 [article.url],
@@ -54,7 +56,7 @@ def extract_source_articles(url: str="https://globenewswire.com/NewsRoom?page=1&
             )
             content = ArticleContent(**article_result.get("data"))
         
-            logger.info("data scraped %s", content.article_content)
+            logger.info("data scraped content len %s", len(content.article_content))
             res.append(
                 SourceArticleBase(
                     url=article.url,
@@ -63,6 +65,8 @@ def extract_source_articles(url: str="https://globenewswire.com/NewsRoom?page=1&
                 )
             )
         
-        logger.info("%s", res)
-    except Exception:
-        return []
+        logger.info(f"Firecrawl ended returnnign response with {len(res)} results")
+        return res
+    except Exception as e:
+        logger.error("Error extracting articles", e)
+        return res
