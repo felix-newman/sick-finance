@@ -18,7 +18,7 @@ export default function DemoPage() {
   const [urlQuery, setUrlQuery] = useState("");
 
   // new extractArticles form state
-  const [extractUrl, setExtractUrl] = useState("");
+  const [extractUrl, setExtractUrl] = useState("https://globenewswire.com/NewsRoom?page=1&pageSize=10");
 
   function getColumnsFromData(data: Article[]): { header: string; accessorKey: string }[] {
     if (!data.length) return [];
