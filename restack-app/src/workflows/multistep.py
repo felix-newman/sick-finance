@@ -29,7 +29,7 @@ class MultistepWorkflow:
         llm_article = await workflow.step(
             llm,
             FunctionInputParams(
-                system_content=f"""You are a financial news reporter. You are given a summary of financial information. 
+                system_content="""You are a financial news reporter. You are given a summary of financial information. 
                 Generate a click bait title and a short news article from this information. The output format should be:
                 {
                     "title": "<title>",
