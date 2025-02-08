@@ -15,7 +15,7 @@ class MultistepWorkflow:
     @workflow.run
     async def run(self, input: WorkflowInputParams):
         log.info("MultistepWorkflow started", input=input)
-                # Step 1 Generate summary with LLM 
+        # Step 1 Generate summary with LLM 
         llm_summary = await workflow.step(
             llm,
             FunctionInputParams(
@@ -34,7 +34,9 @@ class MultistepWorkflow:
                 Generate a click bait title and a short news article from this information. The output format should be:
                 {
                     "title": "<title>",
-                    "article": "<article>"
+                    "lead": "<lead>",
+                    "content": "<content>",
+                    "mentioned_stocks": ["<ticker_symbol1>", "<ticker_symbol2>", "<ticker_symbol3>"] (Can also be empty if no stocks are mentioned)
                 }
                 """,
                 user_content=llm_summary,
@@ -55,7 +57,10 @@ class MultistepWorkflow:
         )
         log.info("MultistepWorkflow completed")
         return {
-            "article_summary": llm_summary,
-            "article": llm_article,
+            "original_summary": llm_summary,
+            "title": llm_article["title"],
+            "lead": llm_article["lead"],
+            "content": llm_article["content"],
+            "mentioned_stocks": llm_article["mentioned_stocks"],
             "image_url": llm_image_url
         }
