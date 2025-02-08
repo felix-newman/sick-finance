@@ -15,6 +15,7 @@ from src.dummy_repository import DummyModel, DummyRepository
 from src.models.articles import GeneratedArticleBase, SourceArticle, SourceArticleBase, GeneratedArticle
 from src.adapter.source_article_repository import SourceArticleRepository
 from src.adapter.generated_article_repository import GeneratedArticleRepository
+from src.adapter.extract_articles import extract_source_articles, ArticleContent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -126,3 +127,10 @@ async def delete_dummy(dummy_id: uuid.UUID, session: SessionDep):
     repo = DummyRepository(session)
     repo.delete(dummy_id)
 
+
+class SourceArticleRequest(BaseModel):
+    url: str
+
+@app.put("/articles/")
+async def extract(source_article: SourceArticleRequest) -> List[SourceArticleBase]:
+    return extract_source_articles(source_article.url)

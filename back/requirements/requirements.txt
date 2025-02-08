@@ -5,4 +5,4 @@ pydantic==2.10.4
 sqlmodel==0.0.22
 docker==7.1.0
 python-multipart==0.0.20
-
+firecrawl-py==1.11.1
