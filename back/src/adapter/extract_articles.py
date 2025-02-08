@@ -1,11 +1,11 @@
 import os
-# Install with pip install firecrawl-py
 from firecrawl import FirecrawlApp
 from pydantic import BaseModel, Field
 from typing import Any, Optional, List
 from dotenv import load_dotenv
 from src.models.articles import SourceArticleBase
 import logging
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,14 +54,15 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                     "schema": ArticleContent.model_json_schema(),
                 },
             )
-            content = ArticleContent(**article_result.get("data"))
+            content = ArticleContent(**article_result["data"])
         
             logger.info("data scraped content len %s", len(content.article_content))
             res.append(
                 SourceArticleBase(
+                    accessed_timestamp=datetime.now(),
+                    published_timestamp=datetime.now(),
                     url=article.url,
-                    published_timestamp=article.date_published,
-                    html=content.article_content
+                    html=content.article_content,
                 )
             )
         
