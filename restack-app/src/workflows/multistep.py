@@ -6,8 +6,11 @@ with import_functions():
     from src.functions.llm import llm, FunctionInputParams
     from src.functions.generate_image import generate_image, GenerateImageInputParams
 
-class WorkflowInputParams ( BaseModel):
-    news_article: str = Field(default="Test Article, Test Company, Test Price, Test Change")
+
+class WorkflowInputParams(BaseModel):
+    news_article: str = Field(
+        default="Test Article, Test Company, Test Price, Test Change"
+    )
 
 
 @workflow.defn()
@@ -16,17 +19,18 @@ class MultistepWorkflow:
     async def run(self, input: WorkflowInputParams):
         log.info("MultistepWorkflow started", input=input)
         # Step 1 Generate summary with LLM 
+        # Step 1 Generate summary with LLM
         llm_summary = await workflow.step(
             llm,
             FunctionInputParams(
                 system_content=f"You are a financial news analyst. Summarize the most relevant information from the news article you get send.",
                 user_content=input.news_article,
-                model="gpt-4o-mini"
+                model="gpt-4o-mini",
             ),
-            start_to_close_timeout=timedelta(seconds=120)
+            start_to_close_timeout=timedelta(seconds=120),
         )
         log.info("MultistepWorkflow first step completed", llm_summary=llm_summary)
-        # Step 2 Generate article and image with LLM 
+        # Step 2 Generate article and image with LLM
         llm_article = await workflow.step(
             llm,
             FunctionInputParams(
@@ -40,9 +44,9 @@ class MultistepWorkflow:
                 }
                 """,
                 user_content=llm_summary,
-                model="gpt-4o-mini"
+                model="gpt-4o-mini",
             ),
-            start_to_close_timeout=timedelta(seconds=120)
+            start_to_close_timeout=timedelta(seconds=120),
         )
 
         llm_image_url = await workflow.step(
@@ -51,13 +55,13 @@ class MultistepWorkflow:
                 prompt=f"Generate a image for the follwoing news article: {llm_article}",
                 model="dall-e-3",
                 n=1,
-                size="1024x1024"
+                size="1024x1024",
             ),
-            start_to_close_timeout=timedelta(seconds=120)
+            start_to_close_timeout=timedelta(seconds=120),
         )
         log.info("MultistepWorkflow completed")
         return {
             "original_summary": llm_summary,
-            "image_url": llm_image_url,
+            "image_url": llm_image_url,,
             **json.loads(llm_article),
         }

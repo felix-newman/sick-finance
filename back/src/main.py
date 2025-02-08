@@ -3,6 +3,8 @@
 import logging
 import os
 import uuid
+import time
+
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, Dict, List
 from uuid import UUID
@@ -12,10 +14,16 @@ from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
 
 from src.dummy_repository import DummyModel, DummyRepository
-from src.models.articles import GeneratedArticleBase, SourceArticle, SourceArticleBase, GeneratedArticle
+from src.models.articles import (
+    GeneratedArticleBase,
+    SourceArticle,
+    SourceArticleBase,
+    GeneratedArticle,
+)
 from src.adapter.source_article_repository import SourceArticleRepository
 from src.adapter.generated_article_repository import GeneratedArticleRepository
 from src.adapter.extract_articles import extract_source_articles, ArticleContent
+from src.adapter.restack_controller import RestackController
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,19 +46,30 @@ def get_session():
         yield session
 
 
-
-
 SessionDep = Annotated[Session, Depends(get_session)]
+
 
 def source_article_repository(session: SessionDep):
     return SourceArticleRepository(session)
 
+
 def generated_article_repository(session: SessionDep):
     return GeneratedArticleRepository(session)
 
-source_article_repository_dep = Annotated[SourceArticleRepository, Depends(source_article_repository)]
-generated_article_repository_dep = Annotated[GeneratedArticleRepository, Depends(generated_article_repository)]
 
+def restack_controller(session: SessionDep):
+    return RestackController(
+        endpoint="https://reuk9qp3.clj5khk.gcp.restack.it", session=session
+    )
+
+
+source_article_repository_dep = Annotated[
+    SourceArticleRepository, Depends(source_article_repository)
+]
+generated_article_repository_dep = Annotated[
+    GeneratedArticleRepository, Depends(generated_article_repository)
+]
+restack_controller_dep = Annotated[RestackController, Depends(restack_controller)]
 
 
 @asynccontextmanager
@@ -70,42 +89,49 @@ app.add_middleware(
 
 logger.info("Started application")
 
+
 @app.get("/status")
 async def main():
     return {"status": "OK"}
 
+
 class DummyModelRequest(BaseModel):
     name: str
+
 
 @app.get("/dummies")
 async def list_dummies(session: SessionDep):
     repo = DummyRepository(session)
     return repo.get_all()
 
+
 @app.get("/generated_articles")
-async def list_generated_articles(generated_article_repository: generated_article_repository_dep):
+async def list_generated_articles(
+    generated_article_repository: generated_article_repository_dep,
+):
     return generated_article_repository.get_all()
 
 
 @app.post("/generated_articles")
 async def create_generated_article(
     article: GeneratedArticleBase,
-    generated_article_repository: generated_article_repository_dep
+    generated_article_repository: generated_article_repository_dep,
 ) -> GeneratedArticle:
     return generated_article_repository.create(article)
 
 
 @app.post("/source_articles")
 async def create_source_article(
-    article: SourceArticleBase, 
-    source_article_repository: source_article_repository_dep
-    ):
+    article: SourceArticleBase, source_article_repository: source_article_repository_dep
+):
     return source_article_repository.create(article)
+
 
 @app.post("/dummies")
 async def create_dummy(data: DummyModelRequest, session: SessionDep):
     repo = DummyRepository(session)
     return repo.create(DummyModel(name=data.name))
+
 
 @app.get("/dummies/{dummy_id}")
 async def get_dummy(dummy_id: uuid.UUID, session: SessionDep) -> DummyModel:
@@ -115,12 +141,14 @@ async def get_dummy(dummy_id: uuid.UUID, session: SessionDep) -> DummyModel:
         raise HTTPException(status_code=404, detail="Item not found")
     return dummy
 
+
 @app.put("/dummies/{dummy_id}")
 async def update_dummy(dummy_id: uuid.UUID, data: DummyModel, session: SessionDep):
     repo = DummyRepository(session)
     if repo.get(dummy_id) is None:
         raise HTTPException(status_code=404, detail="Item not found")
     repo.update(data)
+
 
 @app.delete("/dummies/{dummy_id}")
 async def delete_dummy(dummy_id: uuid.UUID, session: SessionDep):
@@ -131,11 +159,32 @@ async def delete_dummy(dummy_id: uuid.UUID, session: SessionDep):
 class SourceArticleRequest(BaseModel):
     url: str
 
+
 @app.put("/articles/")
-async def extract(source_article: SourceArticleRequest, session: SessionDep) -> List[SourceArticleBase]:
+async def extract(
+    source_article: SourceArticleRequest,
+    restack_controller: restack_controller_dep,
+    source_article_repository: source_article_repository_dep,
+    generated_article_repository: generated_article_repository_dep,
+) -> List[SourceArticleBase]:
     extracted = extract_source_articles(source_article.url)
     logger.info(f"Extracted {len(extracted)} articles")
-    repo = SourceArticleRepository(session)
+    repo = source_article_repository
     saved = [repo.create(article) for article in extracted]
+
+    for article in saved:
+        restack_controller.create_task(article.content, article.id)
+
+    while tasks := restack_controller.get_all_running_tasks():
+        logger.info(f"Waiting for {len(tasks)} tasks to finish")
+        time.sleep(5)
+        for task in tasks:
+            try:
+                generated_article = restack_controller.poll_task_finished(task)
+                logger.info(f"Task {task.id} finished")
+                generated_article_repository.create(generated_article)
+            except TimeoutError as e:
+                logger.error(f"Timeout waiting for task {task.id} to finish")
+
     logger.info(f"Saved {len(saved)} articles")
     return saved

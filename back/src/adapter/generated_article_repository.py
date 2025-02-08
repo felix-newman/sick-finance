@@ -3,6 +3,7 @@ from src.models.articles import GeneratedArticle, GeneratedArticleBase
 from uuid import UUID
 from typing import Optional
 
+
 class GeneratedArticleRepository:
     def __init__(self, session: Session):
         self.session = session
@@ -15,7 +16,9 @@ class GeneratedArticleRepository:
         return generated_article
 
     def get(self, id: UUID) -> Optional[GeneratedArticle]:
-        return self.session.exec(select(GeneratedArticle).where(GeneratedArticle.id == id)).first()
+        return self.session.exec(
+            select(GeneratedArticle).where(GeneratedArticle.id == id)
+        ).first()
 
     def get_all(self) -> list[GeneratedArticle]:
         return list(self.session.exec(select(GeneratedArticle)).all())

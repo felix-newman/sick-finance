@@ -16,7 +16,9 @@ class SourceArticleRepository:
         return source_article
 
     def get(self, id: UUID) -> Optional[SourceArticle]:
-        return self.session.exec(select(SourceArticle).where(SourceArticle.id == id)).first()
+        return self.session.exec(
+            select(SourceArticle).where(SourceArticle.id == id)
+        ).first()
 
     def get_all(self) -> list[SourceArticle]:
         return list(self.session.exec(select(SourceArticle)).all())

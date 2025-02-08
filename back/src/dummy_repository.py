@@ -1,4 +1,3 @@
-
 # main.py
 
 import uuid
@@ -8,11 +7,11 @@ from sqlmodel import Field
 from sqlalchemy import Column, JSON
 
 
-
 class DummyModel(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
-    json_field: Optional[Dict[str,Any]] = Field(default=None, sa_column=Column(JSON))
+    json_field: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
+
 
 class DummyRepository:
     def __init__(self, session: Session):
