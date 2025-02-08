@@ -4,37 +4,45 @@ from datetime import timedelta
 
 with import_functions():
     from src.functions.llm import llm, FunctionInputParams
-    from src.functions.crawl import crawl
 
 class WorkflowInputParams ( BaseModel):
-    news_url: str = Field(default="https://www.globenewswire.com/newsroom")
+    news_article: str = Field(default="Test Article, Test Company, Test Price, Test Change")
+
 
 @workflow.defn()
 class MultistepWorkflow:
     @workflow.run
     async def run(self, input: WorkflowInputParams):
         log.info("MultistepWorkflow started", input=input)
-        # Step 1 get article data
-        article_content = await workflow.step(
-            crawl,
-            FunctionInputParams(
-                url=input.news_url
-            ),
-            start_to_close_timeout=timedelta(seconds=120)
-        )
-
-        # Step 2 Generate summary with LLM 
-        llm_message = await workflow.step(
+                # Step 1 Generate summary with LLM 
+        llm_summary = await workflow.step(
             llm,
             FunctionInputParams(
-                system_content=f"You are a news information assistant. Summarize the most relevant information from any news article you get",
-                user_content=article_content,
+                system_content=f"You are a financial news analyst. Summarize the most relevant information from the news article you get send.",
+                user_content=input.news_article,
                 model="gpt-4o-mini"
             ),
             start_to_close_timeout=timedelta(seconds=120)
         )
-        log.info("MultistepWorkflow completed", llm_message=llm_message)
+        log.info("MultistepWorkflow first step completed", llm_summary=llm_summary)
+        # Step 2 Generate article and image with LLM 
+        llm_article = await workflow.step(
+            llm,
+            FunctionInputParams(
+                system_content=f"""You are a financial news reporter. You are given a summary of financial information. 
+                Generate a click bait title and a short news article from this information. The output format should be:
+                {
+                    "title": "<title>",
+                    "article": "<article>"
+                }
+                """,
+                user_content=llm_summary,
+                model="gpt-4o-mini"
+            ),
+            start_to_close_timeout=timedelta(seconds=120)
+        )
+        log.info("MultistepWorkflow completed")
         return {
-            "message": llm_message,
-            "article_content": article_content
+            "article_summary": llm_summary,
+            "article": llm_article
         }
