@@ -30,9 +30,8 @@ export default function DemoPage() {
   useEffect(() => {
     (async () => {
       const dummyData = await listArticles();
+      console.log(dummyData)
       setData(dummyData);
-      console.log(getColumnsFromData(dummyData));
-      setColumns(getColumnsFromData(dummyData));
     })();
   }, []);
 
@@ -99,7 +98,7 @@ export default function DemoPage() {
       </div>
 
       <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">
-        {filteredData.map((d) => (
+        {data.map((d) => (
           <ArticleCard key={d.id} request={d} onClick={onClick} />
         ))}
       </div>
