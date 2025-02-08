@@ -62,6 +62,6 @@ class MultistepWorkflow:
         log.info("MultistepWorkflow completed")
         return {
             "original_summary": llm_summary,
-            "image_url": llm_image_url,,
+            "image_url": llm_image_url,
             **json.loads(llm_article),
         }
