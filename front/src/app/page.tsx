@@ -56,7 +56,6 @@ export default function DemoPage() {
     e.preventDefault();
     const extractedArticles = await extractArticles(extractUrl);
     console.log(extractedArticles);
-    setData(extractedArticles);
   };
 
   // filter articles using fuzzy search on stocks and sourceUrl
