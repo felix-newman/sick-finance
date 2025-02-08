@@ -53,6 +53,11 @@ class RestackController:
         logger.info(f"Polled task with response: {response.text}")
         data = response.json()
         logger.info(f"Polled task with data: {data}")
+
+        task.status = "finished"
+        self.session.commit()
+        self.session.refresh(task)
+
         generated_article = GeneratedArticleBase(
             source_id=task.article_id,
             title=data["title"],
