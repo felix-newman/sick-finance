@@ -1,17 +1,18 @@
-import { GentleAgent } from "@/api/agentApi";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { JSX } from "react";
 import { Button } from "./ui/button";
+import { Article } from "@/lib/api/articleGateway";
+import Image from 'next/image'
 
-interface DummyCardProps {
-    request: GentleAgent;
+interface ArticleCardProps {
+    request: Article;
     children?: JSX.Element;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-export const DummyCard = ({ request, children, onClick }: DummyCardProps) => {
-    const { id, name, time } = request;
+export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
+    const { id, title, lead, imgUrl } = request;
 
     return (
         <figure onClick={onClick}
@@ -26,23 +27,27 @@ export const DummyCard = ({ request, children, onClick }: DummyCardProps) => {
             )}
         >
 
-            <div  className="cursor-pointer flex flex-row items-center gap-3">
-                <div
-                    className="flex size-10 items-center justify-center rounded-2xl"
-                >
-                    <span className="text-lg">🚀</span>
+            <div className="cursor-pointer flex flex-row items-center gap-3">
+                <div className="flex size-20 items-center justify-center rounded-2xl">
+                    <Image
+                        alt="Article" 
+                        width={200}
+                        height={200}
+                        src={imgUrl!}
+                    />
+                    
                 </div>
                 <div className="flex flex-col overflow-hidden">
                     <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
-                        <span className="text-sm sm:text-lg">{name}</span>
+                        <span className="text-sm sm:text-lg">{request.title}</span>
                         <span className="mx-1">·</span>
-                        <span className="text-xs text-gray-500">{time}</span>
+                        <span className="text-xs text-gray-500">{123}</span>
                     </figcaption>
-                    {/* <p className="text-sm font-normal dark:text-white/60"> */}
-                        {/* Job field: lala */}
-                    {/* </p> */}
+                    <p className="text-sm font-normal dark:text-white/60">
+                        {lead}
+                    </p>
                 </div>
-                
+
             </div>
         </figure>
     );

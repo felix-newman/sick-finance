@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { createDummy } from "../lib/api/dummyGateway"
+import { createDummy } from "../lib/api/articleGateway"
 
 import { Button } from "@/components/ui/button"
 import {

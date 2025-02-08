@@ -1,17 +1,18 @@
 "use client"
 
 import { DataTable } from "@/components/datatable";
+import { ArticleCard } from "@/components/articlecard";
 import { DummyForm } from "@/components/dummyform";
-import { listDummies, DummyModel, createDummy, deleteDummy } from "@/lib/api/dummyGateway";
+import { listArticles, Article, createDummy, deleteDummy } from "@/lib/api/articleGateway";
 import { on } from "events";
 import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
 
 export default function DemoPage() {
-  const [data, setData] = useState<DummyModel[]>([]);
+  const [data, setData] = useState<Article[]>([]);
   const [columns, setColumns] = useState<{ header: string, accessorKey: string }[]>([]);
 
-  function getColumnsFromData(data: DummyModel[]): { header: string; accessorKey: string }[] {
+  function getColumnsFromData(data: Article[]): { header: string; accessorKey: string }[] {
     if (!data.length) return [];
     return Object.keys(data[0]).map((key) => ({
       header: key.charAt(0).toUpperCase() + key.slice(1),
@@ -20,7 +21,7 @@ export default function DemoPage() {
   }
   useEffect(() => {
     (async () => {
-      const dummyData = await listDummies();
+      const dummyData = await listArticles();
       setData(dummyData);
       console.log(getColumnsFromData(dummyData));
       setColumns(getColumnsFromData(dummyData));
@@ -31,32 +32,26 @@ export default function DemoPage() {
   const onSubmit = async (values: any) => {
     await createDummy(values.name)
     // # update dummies
-    setData(await listDummies())
+    setData(await listArticles())
   }
   const onRowClicked = (data: object) => {
     console.log(data)
   } 
-  const onDeleteClicked = async (data: DummyModel) => {
+  const onDeleteClicked = async (data: Article) => {
     await deleteDummy(data.id as string)
-    setData(await listDummies())
+    setData(await listArticles())
     console.log(data)
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto my-10">
 
-      <div className="grid grid-cols-2 my-5">
-        <div></div>
-        <DummyForm onSubmit={onSubmit} />
-      </div>
+      
 
-      <div>
-        {data && columns &&
-          <DataTable 
-          onDeleteClicked={(data) => onDeleteClicked(data as DummyModel)}
-          onRowClicked={(data) => onRowClicked(data)}
-          columns={columns} data={data} />
-        }
+      <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">
+        {data.map((d) => (
+          <ArticleCard key={d.id} request={d} onClick={() => onRowClicked(d)} />
+        ))}        
       </div>
     </div>
 
