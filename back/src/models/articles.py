@@ -9,7 +9,7 @@ class SourceArticleBase(SQLModel):
     url: str = Field(nullable=False)
     accessed_timestamp: datetime = Field(nullable=False)
     published_timestamp: datetime = Field(nullable=False)
-    html: str = Field(nullable=False)
+    content: str = Field(nullable=False)
 
 
 class SourceArticle(SourceArticleBase, table=True):

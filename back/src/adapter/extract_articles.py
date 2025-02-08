@@ -62,7 +62,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                     accessed_timestamp=datetime.now(),
                     published_timestamp=datetime.now(),
                     url=article.url,
-                    html=content.article_content,
+                    content=content.article_content,
                 )
             )
         
