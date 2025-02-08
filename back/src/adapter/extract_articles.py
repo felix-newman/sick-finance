@@ -44,7 +44,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
         
         res = []
         for i, article in enumerate(article_response.articles):
-            if i == 2:
+            if i == 1:
                 break
             logger.info("Extracting the full content of the article. %s in %s", i, len(article_response.articles))
             article_result = app.extract(
@@ -54,6 +54,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                     "schema": ArticleContent.model_json_schema(),
                 },
             )
+            
             content = ArticleContent(**article_result["data"])
         
             logger.info("data scraped content len %s", len(content.article_content))
@@ -66,7 +67,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
                 )
             )
         
-        logger.info(f"Firecrawl ended returnnign response with {len(res)} results")
+        logger.info(f"Firecrawl ended returning response with {len(res)} results")
         return res
     except Exception as e:
         logger.error("Error extracting articles", e)

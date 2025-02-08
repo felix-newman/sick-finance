@@ -134,5 +134,8 @@ class SourceArticleRequest(BaseModel):
 @app.put("/articles/")
 async def extract(source_article: SourceArticleRequest, session: SessionDep) -> List[SourceArticleBase]:
     extracted = extract_source_articles(source_article.url)
+    logger.info(f"Extracted {len(extracted)} articles")
     repo = SourceArticleRepository(session)
-    return [repo.create(article) for article in extracted]
+    saved = [repo.create(article) for article in extracted]
+    logger.info(f"Saved {len(saved)} articles")
+    return saved
