@@ -47,6 +47,14 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
                     <p className="text-sm font-normal dark:text-white/60">
                         {lead}
                     </p>
+                    {/* Added badges for stocks */}
+                    <div className="mt-2 flex flex-wrap gap-1">
+                        {stocks && stocks.map((stock, index) => (
+                            <Badge key={index}>
+                                {stock}
+                            </Badge>
+                        ))}
+                    </div>
                 </div>
 
             </div>
