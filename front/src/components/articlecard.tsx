@@ -8,14 +8,14 @@ import Image from 'next/image'
 interface ArticleCardProps {
     request: Article;
     children?: JSX.Element;
-    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+    onClick: (article: Article) => void;
 }
 
 export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
     const { id, title, lead, imgUrl } = request;
 
     return (
-        <figure onClick={onClick}
+        <figure onClick={() => onClick(request)}
             className={cn(
                 "relative mx-auto min-h-fit w-full overflow-hidden rounded-2xl p-4",
                 // animation styles

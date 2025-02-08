@@ -34,9 +34,10 @@ export default function DemoPage() {
     // # update dummies
     setData(await listArticles())
   }
-  const onRowClicked = (data: object) => {
-    console.log(data)
+  const onClick = (data: Article) => {
+    window.location.href = `/${data.title}`;
   } 
+  
   const onDeleteClicked = async (data: Article) => {
     await deleteDummy(data.id as string)
     setData(await listArticles())
@@ -50,7 +51,7 @@ export default function DemoPage() {
 
       <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">
         {data.map((d) => (
-          <ArticleCard key={d.id} request={d} onClick={() => onRowClicked(d)} />
+          <ArticleCard key={d.id} request={d} onClick={onClick} />
         ))}        
       </div>
     </div>
