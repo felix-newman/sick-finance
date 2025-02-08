@@ -11,32 +11,24 @@ export interface Article {
     text?: string;
   }
 
+export interface GeneratedArticleBase {
+    title: string;
+    lead: string;
+}
+
+export interface GeneratedArticle extends GeneratedArticleBase {
+    id: string;
+}
+
 export async function getStatus(): Promise<any> {
   const res = await fetch(`${BASE_URL}/status`);
   return res.json();
 }
 
-export async function listArticles(): Promise<Article[]> {
-  // const res = await fetch(`${BASE_URL}/articles`);
-  // return res.json();
-  return [
-    {
-      id: "1",
-      title: "Hello World",
-      lead: "This is a dummy article",
-      imgUrl: "/exmaple.png",
-      stocks: ["AAPL", "GOOGL", "AMZN"],
-      sourceUrl: "https://google.com"
-    },
-    {
-      id: "2",
-      title: "Hello World 2",
-      lead: "This is a dummy article",
-      imgUrl: "/exmaple.png",
-      stocks: ["TSLA", "AMZN"],
-      sourceUrl: "https://example.com"
-    }
-  ]
+export async function listArticles(): Promise<GeneratedArticle[]> {
+  const res = await fetch(`${BASE_URL}/generated_articles`);
+  return res.json();
+ 
 }
 
 export async function createDummy(name: string): Promise<Article> {
@@ -74,5 +66,10 @@ export async function extractArticles(url: string): Promise<Article[]> {
     body: JSON.stringify({ url }),
   });
   return res.json();
+}
+
+export async function listGeneratedArticles(): Promise<GeneratedArticle[]> {
+    const res = await fetch(`${BASE_URL}/generated_articles`);
+    return res.json();
 }
 

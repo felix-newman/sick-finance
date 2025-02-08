@@ -2,18 +2,18 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { JSX } from "react";
 import { Button } from "./ui/button";
-import { Article } from "@/lib/api/articleGateway";
+import { Article, GeneratedArticle } from "@/lib/api/articleGateway";
 import Image from 'next/image'
 import { Badge } from "./ui/badge";
 
 interface ArticleCardProps {
-    request: Article;
+    request: GeneratedArticle;
     children?: JSX.Element;
-    onClick: (article: Article) => void;
+    onClick: (article: GeneratedArticle) => void;
 }
 
 export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
-    const { id, title, lead, imgUrl, stocks } = request;
+    const { id, title, lead } = request;
 
     return (
         <figure onClick={() => onClick(request)}
@@ -30,12 +30,12 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
 
             <div className="cursor-pointer flex flex-row items-center gap-3">
                 <div className="flex size-20 items-center justify-center rounded-2xl">
-                    <Image
+                    {/* <Image
                         alt="Article"
                         width={200}
                         height={200}
                         src={imgUrl!}
-                    />
+                    /> */}
 
                 </div>
                 <div className="flex flex-col overflow-hidden">
@@ -49,11 +49,11 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
                     </p>
                     {/* Added badges for stocks */}
                     <div className="mt-2 flex flex-wrap gap-1">
-                        {stocks && stocks.map((stock, index) => (
+                        {/* {stocks && stocks.map((stock, index) => (
                             <Badge key={index}>
                                 {stock}
                             </Badge>
-                        ))}
+                        ))} */}
                     </div>
                 </div>
 

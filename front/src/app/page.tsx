@@ -3,14 +3,14 @@
 import { DataTable } from "@/components/datatable";
 import { ArticleCard } from "@/components/articlecard";
 import { DummyForm } from "@/components/dummyform";
-import { listArticles, Article, createDummy, deleteDummy, extractArticles } from "@/lib/api/articleGateway"; // updated import
+import { listArticles, Article, createDummy, deleteDummy, extractArticles, GeneratedArticle } from "@/lib/api/articleGateway"; // updated import
 import { on } from "events";
 import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 
 export default function DemoPage() {
-  const [data, setData] = useState<Article[]>([]);
+  const [data, setData] = useState<GeneratedArticle[]>([]);
   const [columns, setColumns] = useState<{ header: string, accessorKey: string }[]>([]);
   
   // added search state
@@ -41,7 +41,7 @@ export default function DemoPage() {
     // # update dummies
     setData(await listArticles())
   }
-  const onClick = (data: Article) => {
+  const onClick = (data: GeneratedArticle) => {
     window.location.href = `/${data.title}`;
   }
 
@@ -60,9 +60,9 @@ export default function DemoPage() {
 
   // filter articles using fuzzy search on stocks and sourceUrl
   const filteredData = data.filter(d => {
-    const stockMatch = stockQuery === "" || d.stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
-    const urlMatch = urlQuery === "" || (d.sourceUrl?.toLowerCase().includes(urlQuery.toLowerCase()));
-    return stockMatch && urlMatch;
+    // const stockMatch = stockQuery === "" || d.stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
+    // const urlMatch = urlQuery === "" || (d.sourceUrl?.toLowerCase().includes(urlQuery.toLowerCase()));
+    // return stockMatch && urlMatch;
   });
 
   return (
