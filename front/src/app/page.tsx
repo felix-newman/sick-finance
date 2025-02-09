@@ -89,8 +89,14 @@ export default function Home() {
   // filter articles using fuzzy search on stocks and sourceUrl
   const filteredData = data.filter(d => {
     const stockMatch = stockQuery === "" || d.mentioned_stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
-    const sourceMatch = urlQuery === "" || d.source_url?.toLowerCase().includes(urlQuery.toLowerCase());
-    return stockMatch && sourceMatch;
+    
+    // If no sources selected, show all articles
+    // Otherwise, only show articles from selected sources
+    const selectedSourceMatch = selectedSources.length === 0 || 
+      selectedSources.some(source => d.source_url?.includes(source.url));
+    
+    //return stockMatch  && selectedSourceMatch;
+    return true;
   });
 
   const handleSourceSelect = (source: Source) => {
@@ -143,13 +149,6 @@ export default function Home() {
   return (
     <main className="min-h-screen p-4 max-w-2xl mx-auto">
       <h1 className="text-4xl font-bold mb-6">Sick finance</h1>
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search articles..."
-          className="w-full p-3 rounded-lg border border-gray-300"
-        />
-      </div>
 
       <div className="my-4">
         <SourceDropdown 
