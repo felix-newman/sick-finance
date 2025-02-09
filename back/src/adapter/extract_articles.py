@@ -76,4 +76,4 @@ async def extract_source_articles(url: str) -> List[SourceArticleBase]:
         return res
     except Exception as e:
         logger.error("Error extracting articles", e)
-        return res
+        return []
