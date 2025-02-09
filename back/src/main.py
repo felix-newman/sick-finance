@@ -4,15 +4,16 @@ import logging
 import os
 import uuid
 import time
+import base64  
 
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, Dict, List
 from uuid import UUID
-from fastapi import Depends, FastAPI, File, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
-
+import requests
 from src.dummy_repository import DummyModel, DummyRepository
 from src.models.articles import (
     GeneratedArticleBase,
@@ -109,7 +110,14 @@ async def list_dummies(session: SessionDep):
 @app.get("/generated_articles")
 async def list_generated_articles(
     generated_article_repository: generated_article_repository_dep,
+    background_tasks: BackgroundTasks,
+        restack_controller: restack_controller_dep,
 ) -> List[GeneratedArticleRead]:
+    if not background_tasks.tasks:
+        logger.info("Starting background task")
+        background_tasks.add_task(process_tasks_async, restack_controller, generated_article_repository)
+    else:
+        logger.info("Background task already running")
     return [GeneratedArticleRead.from_orm(g) for g in generated_article_repository.get_all()]
 
 @app.get("/generated_articles/{title}")
@@ -117,7 +125,41 @@ async def get_generated_article(
     title: str,
     generated_article_repository: generated_article_repository_dep,
 ) -> GeneratedArticleRead:
+
     return GeneratedArticleRead.from_orm(generated_article_repository.get_by_title(title))
+
+
+# New function to process tasks in a background thread
+def process_tasks_async(restack_controller, generated_article_repository):
+    tasks = restack_controller.get_all_running_tasks()
+    for task in tasks:
+        logger.info(f"Processing task {task.run_id}")
+        response = restack_controller.poll_task_finished(task)
+        
+        if response.status_code != 200:
+            logger.info(f"Task poll failed {response.status_code} {response.text}")
+            continue
+
+        data = response.json()
+
+        image_url = data["image_url"]
+        image_response = requests.get(image_url)
+        if image_response.status_code == 200:
+            image_data = base64.b64encode(image_response.content).decode('utf-8')
+        else:
+            image_data = None
+            logger.error(f"Failed to download image from {image_url}")
+        generated_article = GeneratedArticleBase(
+            source_id=task.article_id,
+            title=data["title"],
+            content=data["content"],
+            lead=data["lead"],
+            mentioned_stocks=data["mentioned_stocks"],
+            image_url=image_url,
+            image_data=image_data,
+        )
+
+        generated_article_repository.create(generated_article)
 
 
 @app.post("/generated_articles")
@@ -182,17 +224,6 @@ async def extract(
 
     for article in saved:
         restack_controller.create_task(article.content, article.id)
-
-    while tasks := restack_controller.get_all_running_tasks():
-        logger.info(f"Waiting for {len(tasks)} tasks to finish")
-        time.sleep(5)
-        for task in tasks:
-            try:
-                generated_article = restack_controller.poll_task_finished(task)
-                logger.info(f"Task {task.id} finished")
-                generated_article_repository.create(generated_article)
-            except TimeoutError as e:
-                logger.error(f"Timeout waiting for task {task.id} to finish")
 
     logger.info(f"Saved {len(saved)} articles")
     return saved
