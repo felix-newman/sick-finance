@@ -112,6 +112,13 @@ async def list_generated_articles(
 ) -> List[GeneratedArticleRead]:
     return [GeneratedArticleRead.from_orm(g) for g in generated_article_repository.get_all()]
 
+@app.get("/generated_articles/{title}")
+async def get_generated_article(
+    title: str,
+    generated_article_repository: generated_article_repository_dep,
+) -> GeneratedArticleRead:
+    return GeneratedArticleRead.from_orm(generated_article_repository.get_by_title(title))
+
 
 @app.post("/generated_articles")
 async def create_generated_article(

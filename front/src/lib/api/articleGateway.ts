@@ -76,3 +76,9 @@ export async function listGeneratedArticles(): Promise<GeneratedArticle[]> {
     return res.json();
 }
 
+// New endpoint call added below:
+export async function getGeneratedArticleByTitle(title: string): Promise<GeneratedArticle> {
+  const res = await fetch(`${BASE_URL}/generated_articles/${title}`);
+  return res.json();
+}
+

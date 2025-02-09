@@ -20,6 +20,11 @@ class GeneratedArticleRepository:
             select(GeneratedArticle).where(GeneratedArticle.id == id)
         ).first()
 
+    def get_by_title(self, title: str) -> Optional[GeneratedArticle]:
+        return self.session.exec(
+            select(GeneratedArticle).where(GeneratedArticle.title == title)
+        ).first()
+
     def get_all(self) -> list[GeneratedArticle]:
         return list(self.session.exec(select(GeneratedArticle)).all())
 
