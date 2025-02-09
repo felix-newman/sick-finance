@@ -19,6 +19,7 @@ from src.models.articles import (
     SourceArticle,
     SourceArticleBase,
     GeneratedArticle,
+    GeneratedArticleRead
 )
 from src.adapter.source_article_repository import SourceArticleRepository
 from src.adapter.generated_article_repository import GeneratedArticleRepository
@@ -108,8 +109,8 @@ async def list_dummies(session: SessionDep):
 @app.get("/generated_articles")
 async def list_generated_articles(
     generated_article_repository: generated_article_repository_dep,
-):
-    return generated_article_repository.get_all()
+) -> List[GeneratedArticleRead]:
+    return [GeneratedArticleRead.from_orm(g) for g in generated_article_repository.get_all()]
 
 
 @app.post("/generated_articles")
