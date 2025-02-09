@@ -15,10 +15,10 @@ class RestackController:
         self.endpoint = endpoint
         self.session = session
     
-    def finish_tasl(self, task: RestackTask):
+    def finish_task(self, task: RestackTask):
         task.status = "finished"
-        self.session.update(task)
-        self.session.refresh()
+        self.session.commit()
+        self.session.refresh(task)
 
     def create_task(self, content: str, article_id: UUID) -> RestackTask:
         response = requests.post(

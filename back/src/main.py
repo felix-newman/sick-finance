@@ -158,7 +158,7 @@ def process_tasks_async(restack_controller, generated_article_repository):
             image_url=image_url,
             image_data=image_data,
         )
-
+        restack_controller.finish_task(task)
         generated_article_repository.create(generated_article)
 
 
