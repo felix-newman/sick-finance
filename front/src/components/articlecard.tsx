@@ -13,7 +13,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
-    const { id, title, lead } = request;
+    const { id, title, lead, image_url, mentioned_stocks } = request;
 
     return (
         <figure onClick={() => onClick(request)}
@@ -30,12 +30,12 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
 
             <div className="cursor-pointer flex flex-row items-center gap-3">
                 <div className="flex size-20 items-center justify-center rounded-2xl">
-                    {/* <Image
+                    <img
                         alt="Article"
                         width={200}
                         height={200}
-                        src={imgUrl!}
-                    /> */}
+                        src={image_url!}
+                    />
 
                 </div>
                 <div className="flex flex-col overflow-hidden">
@@ -49,11 +49,11 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
                     </p>
                     {/* Added badges for stocks */}
                     <div className="mt-2 flex flex-wrap gap-1">
-                        {/* {stocks && stocks.map((stock, index) => (
+                        {mentioned_stocks && mentioned_stocks.map((stock, index) => (
                             <Badge key={index}>
                                 {stock}
                             </Badge>
-                        ))} */}
+                        ))}
                     </div>
                 </div>
 

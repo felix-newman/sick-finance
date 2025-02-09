@@ -59,9 +59,9 @@ export default function DemoPage() {
 
   // filter articles using fuzzy search on stocks and sourceUrl
   const filteredData = data.filter(d => {
-    // const stockMatch = stockQuery === "" || d.stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
+    const stockMatch = stockQuery === "" || d.mentioned_stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
     // const urlMatch = urlQuery === "" || (d.sourceUrl?.toLowerCase().includes(urlQuery.toLowerCase()));
-    // return stockMatch && urlMatch;
+    return stockMatch;
   });
 
   return (
