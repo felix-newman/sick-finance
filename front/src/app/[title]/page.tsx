@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Article, getGeneratedArticleByTitle } from "@/lib/api/articleGateway";
 import Link from "next/link";
 import Image from 'next/image'
+import { Badge } from "@/components/ui/badge";
 
 export default async function Home({ params }: { params: { title: string } }) {
 
@@ -11,28 +12,27 @@ export default async function Home({ params }: { params: { title: string } }) {
         <div>
             <div className="container mx-auto p-4">
                 <div className="max-w-[50%] mx-auto">
-                    <div className="">
-                        <img
-                            width={200}
-                            height={200}
-                            src={`data:image/jpeg;base64,${article.image_data}`}
-                            alt={article.title}
-                            className="my-4 mx-auto" />
+                    <div className="mb-6">
+                        <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+                        <div className="relative w-full h-[200px] overflow-hidden">
+                            <img
+                                className="w-full absolute top-0 left-0 object-cover"
+                                style={{ height: '400px', marginTop: '0' }}
+                                src={`data:image/jpeg;base64,${article.image_data}`}
+                                alt={article.title} />
+                        </div>
+                        
+                        <p className="text-xl text-gray-600 font-medium mb-6">{article.lead}</p>
                     </div>
 
-                    <h1 className="text-4xl font-bold">{article.title}</h1>
-
-
-                    <blockquote className="my-4 ml-[0.075em] border-l-3 border-gray-300 pl-4 text-gray-700">{article.lead}</blockquote>
-
-
                     <p className="text-gray-800 leading-snug">{article.content}</p>
-
-                    <ul>
+                    <div className="flex flex-wrap gap-1">
                         {article.mentioned_stocks?.map(stock => (
-                            <li key={stock}>{stock}</li>
+                            <Badge key={stock}>
+                                {stock}
+                            </Badge>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
