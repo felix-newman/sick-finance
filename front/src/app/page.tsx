@@ -35,7 +35,7 @@ export default function DemoPage() {
       const dummyData = await listArticles();
       if (cancelled) return;
       setData(dummyData);
-      setTimeout(fetchData, 5000); // schedule next fetch 5s after finish
+      setTimeout(fetchData, 10_000); // schedule next fetch 5s after finish
     }
     fetchData();
     return () => { cancelled = true; }
