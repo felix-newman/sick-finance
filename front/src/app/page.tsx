@@ -143,21 +143,6 @@ export default function Home() {
   return (
     <main className="min-h-screen p-4 max-w-2xl mx-auto">
       <h1 className="text-4xl font-bold mb-6">Sick finance</h1>
-      
-      <div className="mb-6">
-        <input 
-          type="url" 
-          placeholder="https://globenewswire.com/NewsRoom?page=1&pageSize=10"
-          className="w-full p-3 rounded-lg border border-gray-300"
-          value={extractUrl}
-        />
-        <button
-        onClick={() => handleAddSource(extractUrl)}
-        className="mt-2 bg-black text-white px-6 py-2 rounded-lg float-right">
-          Extract Articles
-        </button>
-      </div>
-
       <div className="mb-6">
         <input
           type="text"
@@ -166,7 +151,7 @@ export default function Home() {
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="my-4">
         <SourceDropdown 
           sources={sources} 
           onSourceSelect={handleSourceSelect}
