@@ -28,12 +28,16 @@ export default function DemoPage() {
       accessorKey: key,
     }));
   }
+
   useEffect(() => {
-    (async () => {
+    async function fetchData() {
       const dummyData = await listArticles();
-      console.log(dummyData)
+      // Optionally log data if needed: console.log(dummyData);
       setData(dummyData);
-    })();
+    }
+    fetchData();
+    const intervalId = setInterval(fetchData, 2000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const onSubmit = async (values: any) => {
