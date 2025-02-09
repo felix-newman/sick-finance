@@ -16,7 +16,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
 import requests
-from src.dummy_repository import DummyModel, DummyRepository
 
 from src.models.articles import (
     GeneratedArticleBase,
