@@ -9,6 +9,9 @@ import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Source } from "@/types/source"
+import { SourceDropdown } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge"
 
 export default function Home() {
   const [data, setData] = useState<GeneratedArticle[]>([]);
@@ -20,6 +23,9 @@ export default function Home() {
 
   // new extractArticles form state
   const [extractUrl, setExtractUrl] = useState("https://globenewswire.com/NewsRoom?page=1&pageSize=10");
+
+  const [sources, setSources] = useState<Source[]>([])
+  const [selectedSources, setSelectedSources] = useState<Source[]>([])
 
   function getColumnsFromData(data: Article[]): { header: string; accessorKey: string }[] {
     if (!data.length) return [];
@@ -35,6 +41,23 @@ export default function Home() {
       setData(dummyData);
     })();
   }, []);
+
+  useEffect(() => {
+    const fetchSources = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/sources')
+        if (!response.ok) {
+          throw new Error('Failed to fetch sources')
+        }
+        const data = await response.json()
+        setSources(data)
+      } catch (error) {
+        console.error('Error fetching sources:', error)
+      }
+    }
+
+    fetchSources()
+  }, []) // Empty dependency array means this runs once on mount
 
   const onSubmit = async (values: any) => {
     await createDummy(values.name)
@@ -61,8 +84,56 @@ export default function Home() {
   // filter articles using fuzzy search on stocks and sourceUrl
   const filteredData = data.filter(d => {
     const stockMatch = stockQuery === "" || d.mentioned_stocks.some(s => s.toLowerCase().includes(stockQuery.toLowerCase()));
-    return stockMatch;
+    const sourceMatch = urlQuery === "" || d.source_url?.toLowerCase().includes(urlQuery.toLowerCase());
+    return stockMatch && sourceMatch;
   });
+
+  const handleSourceSelect = (source: Source) => {
+    console.log('Selected source:', source)
+    if (!selectedSources.some(s => s.id === source.id)) {
+      setSelectedSources(prev => [...prev, source])
+    }
+    setExtractUrl(source.url)
+  }
+
+  const handleRemoveSource = (sourceId: string) => {
+    setSelectedSources(prev => prev.filter(s => s.id !== sourceId))
+  }
+
+  const handleAddSource = async (url: string) => {
+    try {
+      const newSource = { url, id: crypto.randomUUID() }
+      const response = await fetch('http://localhost:8000/sources', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSource),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to add source')
+      }
+
+      // Refresh sources list
+      const updatedSources = await fetch('http://localhost:8000/sources').then(res => res.json())
+      setSources(updatedSources)
+      
+      // Add to selected sources
+      setSelectedSources(prev => [...prev, newSource])
+      setExtractUrl(url)
+
+      // Extract articles from the new source
+      const extractedArticles = await extractArticles(url)
+      console.log('Extracted articles:', extractedArticles)
+      
+      // Refresh articles list
+      const updatedArticles = await listArticles()
+      setData(updatedArticles)
+    } catch (error) {
+      console.error('Error adding source:', error)
+    }
+  }
 
   return (
     <main className="min-h-screen p-4 max-w-2xl mx-auto">
@@ -87,8 +158,30 @@ export default function Home() {
         />
       </div>
 
+      <div className="space-y-4">
+        <SourceDropdown 
+          sources={sources} 
+          onSourceSelect={handleSourceSelect}
+          onAddSource={handleAddSource}
+        />
+        
+        {selectedSources.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {selectedSources.map(source => (
+              <Badge 
+                key={source.id}
+                variant="secondary"
+                onRemove={() => handleRemoveSource(source.id)}
+              >
+                {source.url}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="space-y-6">
-        {data.map((article) => (
+        {filteredData.map((article) => (
           <ArticleCard
             key={article.id}
             title={article.title}

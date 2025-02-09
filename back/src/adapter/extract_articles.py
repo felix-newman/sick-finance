@@ -47,7 +47,7 @@ def extract_source_articles(url: str) -> List[SourceArticleBase]:
 
         res = []
         for i, article in enumerate(article_response.articles):
-            if i == 10:
+            if i == 3:
                 break
             logger.info(
                 "Extracting the full content of the article. %s in %s",

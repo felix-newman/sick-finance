@@ -2,7 +2,10 @@
 
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
+import { Check, ChevronRight, Circle, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Source } from "@/types/source"
+import { Input } from "@/components/ui/input"
 
 import { cn } from "@/lib/utils"
 
@@ -181,6 +184,60 @@ const DropdownMenuShortcut = ({
   )
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
+
+interface SourceDropdownProps {
+    sources: Source[]
+    onSourceSelect?: (source: Source) => void
+    onAddSource?: (url: string) => void
+}
+
+export function SourceDropdown({ sources, onSourceSelect, onAddSource }: SourceDropdownProps) {
+    const [inputValue, setInputValue] = React.useState("")
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Input 
+                    type="text"
+                    placeholder="Enter or select source URL..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[--radix-dropdown-trigger-width]">
+                {/* Add new source option */}
+                <DropdownMenuItem
+                    onClick={() => {
+                        if (inputValue.trim()) {
+                            onAddSource?.(inputValue.trim())
+                            setInputValue("")
+                        }
+                    }}
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add as new source
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                {/* Existing sources */}
+                {sources
+                    .filter(source => source.url.toLowerCase().includes(inputValue.toLowerCase()))
+                    .map((source) => (
+                        <DropdownMenuItem
+                            key={source.id}
+                            onClick={() => {
+                                onSourceSelect?.(source)
+                                setInputValue(source.url)
+                            }}
+                        >
+                            {source.url}
+                        </DropdownMenuItem>
+                    ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
 
 export {
   DropdownMenu,

@@ -24,6 +24,8 @@ from src.adapter.source_article_repository import SourceArticleRepository
 from src.adapter.generated_article_repository import GeneratedArticleRepository
 from src.adapter.extract_articles import extract_source_articles, ArticleContent
 from src.adapter.restack_controller import RestackController
+from src.models.source import Source
+from src.adapter.source_repository import SourceRepository
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ engine = create_engine(sqlite_url, connect_args=connect_args)
 
 class SourceArticleRequest(BaseModel):
     url: str
-    
+
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -67,6 +69,10 @@ def restack_controller(session: SessionDep):
     )
 
 
+def source_repository(session: SessionDep):
+    return SourceRepository(session)
+
+
 source_article_repository_dep = Annotated[
     SourceArticleRepository, Depends(source_article_repository)
 ]
@@ -74,7 +80,7 @@ generated_article_repository_dep = Annotated[
     GeneratedArticleRepository, Depends(generated_article_repository)
 ]
 restack_controller_dep = Annotated[RestackController, Depends(restack_controller)]
-
+source_repository_dep = Annotated[SourceRepository, Depends(source_repository)]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -97,6 +103,22 @@ logger.info("Started application")
 @app.get("/status")
 async def main():
     return {"status": "OK"}
+
+
+@app.get("/sources")
+async def list_sources(
+    source_repository: source_repository_dep,
+) -> List[Source]:
+    return source_repository.get_all()
+
+
+@app.put("/sources")
+async def create_source(
+    source: SourceArticleRequest,
+    source_repository: source_repository_dep,
+) -> None:
+    _ = source_repository.save(Source(url=source.url, id=uuid.uuid4()))
+    return None
 
 
 @app.get("/generated_articles")
