@@ -47,7 +47,7 @@ export default function DemoPage() {
     setData(await listArticles())
   }
   const onClick = (data: GeneratedArticle) => {
-    window.location.href = `/${data.title}`;
+    window.location.href = encodeURIComponent(`${data.title}`);
   }
 
   const onDeleteClicked = async (data: Article) => {

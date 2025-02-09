@@ -5,6 +5,7 @@ import os
 import uuid
 import time
 import base64  
+from urllib.parse import unquote  # added import
 
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, Dict, List
@@ -128,8 +129,12 @@ async def get_generated_article(
     title: str,
     generated_article_repository: generated_article_repository_dep,
 ) -> GeneratedArticleRead:
-
-    return GeneratedArticleRead.from_orm(generated_article_repository.get_by_title(title))
+    title = unquote(title)  # decode escaped title from URI
+    logger.info(f"Getting article with title {title}")
+    article = generated_article_repository.get_by_title(title)
+    if not article:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return GeneratedArticleRead.from_orm(article)
 
 
 # New function to process tasks in a background thread

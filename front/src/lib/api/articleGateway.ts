@@ -79,7 +79,10 @@ export async function listGeneratedArticles(): Promise<GeneratedArticle[]> {
 
 // New endpoint call added below:
 export async function getGeneratedArticleByTitle(title: string): Promise<GeneratedArticle> {
-  const res = await fetch(`${BASE_URL}/generated_articles/${title}`);
+  // Encode the title to safely include it in the URL
+  const encodedTitle = encodeURIComponent(title);
+  console.log(title, encodedTitle);
+  const res = await fetch(`${BASE_URL}/generated_articles/${encodedTitle}`);
   return res.json();
 }
 
