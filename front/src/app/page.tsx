@@ -30,14 +30,15 @@ export default function DemoPage() {
   }
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchData() {
       const dummyData = await listArticles();
-      // Optionally log data if needed: console.log(dummyData);
+      if (cancelled) return;
       setData(dummyData);
+      setTimeout(fetchData, 5000); // schedule next fetch 5s after finish
     }
     fetchData();
-    const intervalId = setInterval(fetchData, 1000);
-    return () => clearInterval(intervalId);
+    return () => { cancelled = true; }
   }, []);
 
   const onSubmit = async (values: any) => {
