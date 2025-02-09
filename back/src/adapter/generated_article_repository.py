@@ -1,4 +1,5 @@
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 from src.models.articles import GeneratedArticle, GeneratedArticleBase
 from uuid import UUID
 from typing import Optional
@@ -26,8 +27,8 @@ class GeneratedArticleRepository:
         ).first()
 
     def get_all(self) -> list[GeneratedArticle]:
-        return list(self.session.exec(select(GeneratedArticle)).all())
-
+        return list(self.session.exec(select(GeneratedArticle).options(selectinload(GeneratedArticle.source))).all())
+    
     def update(self, generated_article: GeneratedArticle) -> GeneratedArticle:
         self.session.add(generated_article)
         self.session.commit()

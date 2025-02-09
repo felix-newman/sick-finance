@@ -14,7 +14,7 @@ class RestackController:
     def __init__(self, endpoint: str, session: Session):
         self.endpoint = endpoint
         self.session = session
-    
+
     def finish_task(self, task: RestackTask):
         task.status = "finished"
         self.session.commit()
@@ -51,4 +51,3 @@ class RestackController:
             f"{self.endpoint}/api/workflows/MultistepWorkflow/{task.workflow_id}/{task.run_id}",
             timeout=2,
         )
-        

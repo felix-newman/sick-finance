@@ -7,56 +7,43 @@ import Image from 'next/image'
 import { Badge } from "./ui/badge";
 
 interface ArticleCardProps {
-    request: GeneratedArticle;
-    children?: JSX.Element;
-    onClick: (article: GeneratedArticle) => void;
+    title: string;
+    description: string;
+    imageData: string;
+    stocks: string[];
+    onClick: () => void;
 }
 
-export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
-    const { id, title, lead, image_url, mentioned_stocks, image_data } = request;
-
+export default function ArticleCard({ title, description, imageData, stocks, onClick }: ArticleCardProps) {
     return (
-        <figure onClick={() => onClick(request)}
-            className={cn(
-                "relative mx-auto min-h-fit w-full overflow-hidden rounded-2xl p-4",
-                // animation styles
-                "transition-all duration-200 ease-in-out hover:shadow-md hover:border-gray-300 hover:border-2",
-                // light styles
-                "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
-                // dark styles
-                "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
-            )}
+        <div 
+            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+            onClick={onClick}
         >
-
-            <div className="cursor-pointer flex flex-row items-center gap-3">
-                <div className="flex size-20 items-center justify-center rounded-2xl">
-                    <img
-                        alt="Article"
-                        width={200}
-                        height={200}
-                        src={`data:image/jpeg;base64,${image_data}`}
+            {imageData && (
+                <div className="w-full h-48 relative">
+                    <img 
+                        src={`data:image/jpeg;base64,${imageData}`}
+                        alt={title}
+                        className="w-full h-full object-cover"
                     />
                 </div>
-                <div className="flex flex-col overflow-hidden">
-                    <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
-                        <span className="text-sm sm:text-lg">{request.title}</span>
-                        <span className="mx-1">·</span>
-                        <span className="text-xs text-gray-500">{123}</span>
-                    </figcaption>
-                    <p className="text-sm font-normal dark:text-white/60">
-                        {lead}
-                    </p>
-                    {/* Added badges for stocks */}
-                    <div className="mt-2 flex flex-wrap gap-1">
-                        {mentioned_stocks && mentioned_stocks.map((stock, index) => (
-                            <Badge key={index}>
-                                {stock}
-                            </Badge>
-                        ))}
-                    </div>
+            )}
+            <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">
+                    {title}
+                </h2>
+                <p className="text-gray-600 mb-3">
+                    {description}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                    {stocks.map((stock, index) => (
+                        <Badge key={index}>
+                            {stock}
+                        </Badge>
+                    ))}
                 </div>
-
             </div>
-        </figure>
+        </div>
     );
-};
+}
