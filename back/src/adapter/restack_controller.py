@@ -48,6 +48,10 @@ class RestackController:
             timeout=1000,
         )
         if response.status_code != 200:
+            task.status = "failed"
+            self.session.commit()
+            self.session.refresh(task)
+        
             raise TimeoutError(f"Task {task.id} timed out")
 
         logger.info(f"Polled task with response: {response.text}")
