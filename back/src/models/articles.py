@@ -15,7 +15,7 @@ class SourceArticle(SourceArticleBase, table=True):
     __tablename__ = "source_article"
     generated_articles: List["GeneratedArticle"] = Relationship(
         back_populates="source",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "lazy": "selectin"},
     )
 
 class GeneratedArticleBase(SQLModel):
@@ -37,7 +37,8 @@ class GeneratedArticleBase(SQLModel):
 class GeneratedArticle(GeneratedArticleBase, table=True):
     __tablename__ = "generated_article"
 
-    source: SourceArticle = Relationship(back_populates="generated_articles")
+
+    source: SourceArticle = Relationship(back_populates="generated_articles", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 

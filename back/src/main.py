@@ -6,9 +6,9 @@ import uuid
 import time
 
 from contextlib import asynccontextmanager
-from typing import Annotated, Any, Dict, List
+from typing import Annotated, Any, Dict, List, Optional
 from uuid import UUID
-from fastapi import Depends, FastAPI, File, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
@@ -36,6 +36,10 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
+
+class SourceArticleRequest(BaseModel):
+    url: str
+    
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -93,7 +97,6 @@ logger.info("Started application")
 @app.get("/status")
 async def main():
     return {"status": "OK"}
-
 
 
 @app.get("/generated_articles")
