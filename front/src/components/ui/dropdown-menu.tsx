@@ -195,47 +195,49 @@ export function SourceDropdown({ sources, onSourceSelect, onAddSource }: SourceD
     const [inputValue, setInputValue] = React.useState("")
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Input 
-                    type="text"
-                    placeholder="Enter or select source URL..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-trigger-width]">
-                {/* Add new source option */}
-                <DropdownMenuItem
-                    onClick={() => {
-                        if (inputValue.trim()) {
-                            onAddSource?.(inputValue.trim())
-                            setInputValue("")
-                        }
-                    }}
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add as new source
-                </DropdownMenuItem>
+        <div className="pb-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Input 
+                        type="text"
+                        placeholder="Enter or select source URL..."
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                    />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[--radix-dropdown-trigger-width]">
+                    {/* Add new source option */}
+                    <DropdownMenuItem
+                        onClick={() => {
+                            if (inputValue.trim()) {
+                                onAddSource?.(inputValue.trim())
+                                setInputValue("")
+                            }
+                        }}
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add as new source
+                    </DropdownMenuItem>
 
-                <DropdownMenuSeparator />
+                    <DropdownMenuSeparator />
 
-                {/* Existing sources */}
-                {sources
-                    .filter(source => source.url.toLowerCase().includes(inputValue.toLowerCase()))
-                    .map((source) => (
-                        <DropdownMenuItem
-                            key={source.id}
-                            onClick={() => {
-                                onSourceSelect?.(source)
-                                setInputValue(source.url)
-                            }}
-                        >
-                            {source.url}
-                        </DropdownMenuItem>
-                    ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    {/* Existing sources */}
+                    {sources
+                        .filter(source => source.url.toLowerCase().includes(inputValue.toLowerCase()))
+                        .map((source) => (
+                            <DropdownMenuItem
+                                key={source.id}
+                                onClick={() => {
+                                    onSourceSelect?.(source)
+                                    setInputValue(source.url)
+                                }}
+                            >
+                                {source.url}
+                            </DropdownMenuItem>
+                        ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
     )
 }
 
