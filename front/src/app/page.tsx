@@ -1,7 +1,7 @@
 "use client"
 
 import { DataTable } from "@/components/datatable";
-import { ArticleCard } from "@/components/articlecard";
+import ArticleCard from "@/components/articlecard";
 import { DummyForm } from "@/components/dummyform";
 import { listArticles, Article, createDummy, deleteDummy, extractArticles, GeneratedArticle } from "@/lib/api/articleGateway"; // updated import
 import { on } from "events";
@@ -10,7 +10,7 @@ import { set } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function DemoPage() {
+export default function Home() {
   const [data, setData] = useState<GeneratedArticle[]>([]);
   const [columns, setColumns] = useState<{ header: string, accessorKey: string }[]>([]);
   
@@ -65,45 +65,40 @@ export default function DemoPage() {
   });
 
   return (
-    <div className="container mx-auto my-10 max-w-3xl">
-      <div className="my-10">
-        <h1 className="text-4xl font-bold">Sick finance</h1>
-        
-        <form onSubmit={onExtractSubmit} className="my-4">
-          <Input
-            placeholder="Enter URL to extract articles"
-            type="url"
-            value={extractUrl}
-            onChange={(e) => setExtractUrl(e.target.value)}
-          />
-          <div className="flex justify-end">
-          <Button type="submit" className="my-2">
-            Extract Articles
-          </Button>
-          </div>
-        </form>  
-        
-        
-        <div className="grid grid-cols-2 gap-2 my-4">
-          {/* updated inputs with onChange handlers */}
-          <Input
-            placeholder="stock"
-            type="text"
-            value={stockQuery}
-            onChange={(e) => setStockQuery(e.target.value)}
-          />
-          <div></div>
-        </div>
-  
-       
+    <main className="min-h-screen p-4 max-w-2xl mx-auto">
+      <h1 className="text-4xl font-bold mb-6">Sick finance</h1>
+      
+      <div className="mb-6">
+        <input 
+          type="url" 
+          placeholder="https://globenewswire.com/NewsRoom?page=1&pageSize=10"
+          className="w-full p-3 rounded-lg border border-gray-300"
+        />
+        <button className="mt-2 bg-black text-white px-6 py-2 rounded-lg float-right">
+          Extract Articles
+        </button>
       </div>
 
-      <div className="max-w-3xl mx-auto grid grid-cols-1 gap-4">
-        {filteredData.map((d) => (
-          <ArticleCard key={d.id} request={d} onClick={onClick} />
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search articles..."
+          className="w-full p-3 rounded-lg border border-gray-300"
+        />
+      </div>
+
+      <div className="space-y-6">
+        {data.map((article) => (
+          <ArticleCard
+            key={article.id}
+            title={article.title}
+            description={article.lead}
+            imageData={article.image_data}
+            onClick={() => onClick(article)}
+            stocks={article.mentioned_stocks}
+          />
         ))}
       </div>
-    </div>
-
+    </main>
   );
 }
