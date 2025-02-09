@@ -13,7 +13,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) => {
-    const { id, title, lead, image_url, mentioned_stocks } = request;
+    const { id, title, lead, image_url, mentioned_stocks, image_data } = request;
 
     return (
         <figure onClick={() => onClick(request)}
@@ -34,9 +34,8 @@ export const ArticleCard = ({ request, children, onClick }: ArticleCardProps) =>
                         alt="Article"
                         width={200}
                         height={200}
-                        src={image_url!}
+                        src={`data:image/jpeg;base64,${image_data}`}
                     />
-
                 </div>
                 <div className="flex flex-col overflow-hidden">
                     <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
