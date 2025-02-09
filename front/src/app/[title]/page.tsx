@@ -19,7 +19,7 @@ export default async function Home({ params }: { params: { title: string } }) {
                     src={`data:image/jpeg;base64,${article.image_data}`} 
                     alt={article.title} 
                     className="my-4" />
-                    {/* <div>{article}</div> */}
+                    <div>{article.content}</div>
                     <ul>
                         {article.mentioned_stocks?.map(stock => (
                           <li key={stock}>{stock}</li>

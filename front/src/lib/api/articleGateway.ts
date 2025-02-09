@@ -21,6 +21,7 @@ export interface GeneratedArticle extends GeneratedArticleBase {
     image_url: string;
     mentioned_stocks: string[];
     image_data: string;
+    content: string;
 }
 
 export async function getStatus(): Promise<any> {
