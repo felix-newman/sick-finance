@@ -36,7 +36,7 @@ if os.getenv("ENV") == "production":
     logger.info("Running in production mode")
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(sqlite_url, connect_args=connect_args, pool_size=10)
 
 
 def create_db_and_tables():
@@ -45,7 +45,10 @@ def create_db_and_tables():
 
 def get_session():
     with Session(engine) as session:
-        yield session
+        try:
+            yield session
+        finally:
+            session.close()
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
