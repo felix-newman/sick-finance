@@ -149,8 +149,11 @@ export default function Home() {
           type="url" 
           placeholder="https://globenewswire.com/NewsRoom?page=1&pageSize=10"
           className="w-full p-3 rounded-lg border border-gray-300"
+          value={extractUrl}
         />
-        <button className="mt-2 bg-black text-white px-6 py-2 rounded-lg float-right">
+        <button
+        onClick={() => handleAddSource(extractUrl)}
+        className="mt-2 bg-black text-white px-6 py-2 rounded-lg float-right">
           Extract Articles
         </button>
       </div>
