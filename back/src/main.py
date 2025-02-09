@@ -13,7 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, create_engine
 
-from src.dummy_repository import DummyModel, DummyRepository
 from src.models.articles import (
     GeneratedArticleBase,
     SourceArticle,
@@ -96,15 +95,6 @@ async def main():
     return {"status": "OK"}
 
 
-class DummyModelRequest(BaseModel):
-    name: str
-
-
-@app.get("/dummies")
-async def list_dummies(session: SessionDep):
-    repo = DummyRepository(session)
-    return repo.get_all()
-
 
 @app.get("/generated_articles")
 async def list_generated_articles(
@@ -133,39 +123,6 @@ async def create_source_article(
     article: SourceArticleBase, source_article_repository: source_article_repository_dep
 ):
     return source_article_repository.create(article)
-
-
-@app.post("/dummies")
-async def create_dummy(data: DummyModelRequest, session: SessionDep):
-    repo = DummyRepository(session)
-    return repo.create(DummyModel(name=data.name))
-
-
-@app.get("/dummies/{dummy_id}")
-async def get_dummy(dummy_id: uuid.UUID, session: SessionDep) -> DummyModel:
-    repo = DummyRepository(session)
-    dummy = repo.get(dummy_id)
-    if not dummy:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return dummy
-
-
-@app.put("/dummies/{dummy_id}")
-async def update_dummy(dummy_id: uuid.UUID, data: DummyModel, session: SessionDep):
-    repo = DummyRepository(session)
-    if repo.get(dummy_id) is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    repo.update(data)
-
-
-@app.delete("/dummies/{dummy_id}")
-async def delete_dummy(dummy_id: uuid.UUID, session: SessionDep):
-    repo = DummyRepository(session)
-    repo.delete(dummy_id)
-
-
-class SourceArticleRequest(BaseModel):
-    url: str
 
 
 @app.put("/articles/")
