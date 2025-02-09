@@ -134,10 +134,15 @@ def process_tasks_async(restack_controller, generated_article_repository):
     tasks = restack_controller.get_all_running_tasks()
     for task in tasks:
         logger.info(f"Processing task {task.run_id}")
-        response = restack_controller.poll_task_finished(task)
+        try:
+            response = restack_controller.poll_task_finished(task)
+        except Exception as e:
+            logger.error(f"Task poll failed {e}")
+            continue
         
         if response.status_code != 200:
             logger.info(f"Task poll failed {response.status_code} {response.text}")
+            # todo delete task here
             continue
 
         data = response.json()
@@ -217,7 +222,7 @@ async def extract(
     source_article_repository: source_article_repository_dep,
     generated_article_repository: generated_article_repository_dep,
 ) -> List[SourceArticleBase]:
-    extracted = extract_source_articles(source_article.url)
+    extracted = await extract_source_articles(source_article.url)
     logger.info(f"Extracted {len(extracted)} articles")
     repo = source_article_repository
     saved = [repo.create(article) for article in extracted]
