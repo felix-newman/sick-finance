@@ -30,10 +30,9 @@ async def generate_image(input: GenerateImageInputParams) -> str:
             prompt=input.prompt,
             n=input.n or 1,
             size=input.size or "1024x1024",
-            response_format="b64_json",
         )
         log.info("generate_image function completed", response=response)
-        return response.data[0].b64_json
+        return response.data[0].url
     except Exception as e:
         log.error("generate_image function failed", error=e)
         raise e

@@ -49,7 +49,7 @@ class MultistepWorkflow:
             start_to_close_timeout=timedelta(seconds=120),
         )
 
-        image_data = await workflow.step(
+        llm_image_url = await workflow.step(
             generate_image,
             GenerateImageInputParams(
                 prompt=f"Generate a image for the follwoing news article: {llm_article}",
@@ -62,6 +62,6 @@ class MultistepWorkflow:
         log.info("MultistepWorkflow completed")
         return {
             "original_summary": llm_summary,
-            "image_data": image_data,
+            "image_url": llm_image_url,
             **json.loads(llm_article),
         }

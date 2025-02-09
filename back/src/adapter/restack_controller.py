@@ -58,14 +58,13 @@ class RestackController:
         self.session.commit()
         self.session.refresh(task)
 
-        image_data = data["image_data"]
         generated_article = GeneratedArticleBase(
             source_id=task.article_id,
             title=data["title"],
             content=data["content"],
             lead=data["lead"],
             mentioned_stocks=data["mentioned_stocks"],
-            image_data=image_data,
+            image_url=data["image_url"],
         )
 
         return generated_article

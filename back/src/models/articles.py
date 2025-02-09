@@ -30,7 +30,7 @@ class GeneratedArticleBase(SQLModel):
     lead: str = Field(nullable=False)
 
     mentioned_stocks: list[str] = Field(sa_column=Column(JSON))
-    image_data: Optional[str] = Field(nullable=True, description="The image data as a base64 encoded string")
+    image_url: str = Field(nullable=True)
 
 
 class GeneratedArticle(GeneratedArticleBase, table=True):
