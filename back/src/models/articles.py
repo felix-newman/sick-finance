@@ -31,6 +31,7 @@ class GeneratedArticleBase(SQLModel):
 
     mentioned_stocks: list[str] = Field(sa_column=Column(JSON))
     image_url: str = Field(nullable=True)
+    image_data: str = Field(nullable=True)
 
 
 class GeneratedArticle(GeneratedArticleBase, table=True):

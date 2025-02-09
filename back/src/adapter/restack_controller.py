@@ -3,7 +3,7 @@ from src.models.restack_task import RestackTask
 from uuid import UUID
 from sqlmodel import Session, select
 from src.models.articles import GeneratedArticleBase
-
+import base64  
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -58,13 +58,24 @@ class RestackController:
         self.session.commit()
         self.session.refresh(task)
 
+        image_url = data["image_url"]
+        # Download and encode image
+        image_response = requests.get(image_url)
+        if image_response.status_code == 200:
+            image_data = base64.b64encode(image_response.content).decode('utf-8')
+        else:
+            image_data = None
+            logger.error(f"Failed to download image from {image_url}")
+
+
         generated_article = GeneratedArticleBase(
             source_id=task.article_id,
             title=data["title"],
             content=data["content"],
             lead=data["lead"],
             mentioned_stocks=data["mentioned_stocks"],
-            image_url=data["image_url"],
+            image_url=image_url,
+            image_data=image_data,
         )
 
         return generated_article
